@@ -1,0 +1,35 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Drop {
+  id            String   @id @default(uuid())
+  token         String   @unique
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime
+  totalSize     BigInt   @default(0)
+  fileCount     Int      @default(0)
+  downloadCount Int      @default(0)
+  status        String   @default("ACTIVE")
+  files         File[]
+
+  @@index([token])
+  @@index([expiresAt])
+}
+
+model File {
+  id           String   @id @default(uuid())
+  dropId       String
+  drop         Drop     @relation(fields: [dropId], references: [id], onDelete: Cascade)
+  originalName String
+  storedName   String
+  size         BigInt
+  mimeType     String
+  createdAt    DateTime @default(now())
+  storagePath  String
+}
